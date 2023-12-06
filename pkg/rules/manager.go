@@ -19,6 +19,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/model/rulefmt"
+	"github.com/prometheus/prometheus/promql/parser"
 	"github.com/prometheus/prometheus/rules"
 	"gopkg.in/yaml.v3"
 
@@ -31,6 +32,25 @@ import (
 )
 
 const tmpRuleDir = ".tmp-rules"
+
+func init() {
+	// Add support for extended functions from thanos engine
+	parser.Functions["xincrease"] = &parser.Function{
+		Name:       "xincrease",
+		ArgTypes:   []parser.ValueType{parser.ValueTypeMatrix},
+		ReturnType: parser.ValueTypeVector,
+	}
+	parser.Functions["xrate"] = &parser.Function{
+		Name:       "xrate",
+		ArgTypes:   []parser.ValueType{parser.ValueTypeMatrix},
+		ReturnType: parser.ValueTypeVector,
+	}
+	parser.Functions["xdelta"] = &parser.Function{
+		Name:       "xdelta",
+		ArgTypes:   []parser.ValueType{parser.ValueTypeMatrix},
+		ReturnType: parser.ValueTypeVector,
+	}
+}
 
 type Group struct {
 	*rules.Group
